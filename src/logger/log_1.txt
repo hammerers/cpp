@@ -1,0 +1,21 @@
+[
+time: 2026-03-05 18:00:58
+level: 1
+file: E:\tool\test\git\cpp\src\logger\test_1.cpp
+line: 6
+MSG: s
+]
+[
+time: 2026-03-05 18:01:04
+level: 1
+file: E:\tool\test\git\cpp\src\logger\test_1.cpp
+line: 6
+MSG: s
+]
+[
+time: 2026-03-05 18:01:06
+level: 1
+file: E:\tool\test\git\cpp\src\logger\test_1.cpp
+line: 6
+MSG: s
+]
