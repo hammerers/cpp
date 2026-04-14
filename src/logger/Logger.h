@@ -10,16 +10,18 @@
 #include<string.h>
 #include<memory>
 #include<mutex>
+#include <format>  
+#include <chrono>
 #include<type_traits>
 namespace Log {
     //log level
-    namespace Level{
-        constexpr int debug = 0;
-        constexpr int info = 1;
-        constexpr int warning = 2;
-        constexpr int error = 3;
-        constexpr int fatal = 4;
-        constexpr int level_count = 5;
+    enum class Level{
+        debug = 0,
+        info = 1,
+        warning = 2,
+        error = 3,
+        fatal = 4,
+        level_count = 5
     };
 
     //type trait check
@@ -38,7 +40,7 @@ namespace Log {
         template<typename T, typename ...Args,
             typename sfinae = std::enable_if_t<is_streamable_v<T>&&(is_streamable_v<Args>&& ...)>
         >
-        void log(const int & level,const char*file,int line,T&& t,Args &&...args) {
+        void log(const Log::Level & level,const char*file,int line,T&& t,Args &&...args) {
             if (m_fout_.fail()) {
                 throw std::logic_error("Error opening file" + m_filename_);
             }
@@ -55,7 +57,7 @@ namespace Log {
         }
 
         private:
-        void _log_normal(int level,const char*file,int line);
+        void _log_normal(Log::Level level,const char*file,int line);
         explicit Logger() noexcept = default;
         Logger(Logger&logger) = delete;
         Logger(const Logger&) = delete;
@@ -66,7 +68,7 @@ namespace Log {
 
         std::string m_filename_;
         std::ofstream m_fout_;
-        static const char* s_level_[Level::level_count];
+        static const char* s_level_[static_cast<int>(Level::level_count)];
         std::mutex m_mutex_;
     };
 
@@ -109,23 +111,40 @@ inline void Log::Logger::close() {
     }
 }
 
-inline void Log::Logger::_log_normal(int level, const char *file, int line) {
-    time_t now = time(NULL);
-    struct tm now_tm;
-    #ifdef _WIN32
-        localtime_s(&now_tm,&now);
-    #else
-        localtime_r(&now, &now_tm);
-    #endif
-   
-    char timestamp[32]={0};
-    strftime(timestamp,sizeof(timestamp),"%Y-%m-%d %H:%M:%S",&now_tm);
-    m_fout_ <<"time: "<<timestamp <<"\n"<<"level: "<< level<<"\n" <<"file: "<<file<<"\n"<<"line: "<< line <<"\n"<<"MSG: ";
+inline void Log::Logger::_log_normal(Log::Level level, const char *file, int line) {
+    // time_t now = time(NULL);
+    // struct tm now_tm;
+    // #ifdef _WIN32
+    //     localtime_s(&now_tm,&now);
+    // #else
+    //     localtime_r(&now, &now_tm);
+    // #endif
+    // char timestamp[32]={0};
+    // strftime(timestamp,sizeof(timestamp),"%Y-%m-%d %H:%M:%S",&now_tm);
+    // m_fout_ <<"time: "<<timestamp <<"\n"<<"level: "<< level<<"\n" <<"file: "<<file<<"\n"<<"line: "<< line <<"\n"<<"MSG: ";
+
+    //auto now = std::chrono::current_zone()->to_local(std::chrono::system_clock::now());
+    // m_fout_ << std::format(
+    //     "time: {:%Y-%m-%d %H:%M:%S}\n"
+    //     "level: {}\n"
+    //     "file: {}\n"
+    //     "line: {}\n"
+    //     "MSG: ",
+    //     now,s_level_[static_cast<int>(level)],file,line
+    // );
+    auto now = std::chrono::current_zone()->to_local(std::chrono::system_clock::now());
+    std::print(m_fout_, 
+    "time: {:%Y-%m-%d %H:%M:%S}\n"
+    "level: {}\n"
+    "file: {}\n"
+    "line: {}\n"
+    "MSG: ", 
+    now, s_level_[static_cast<int>(level)], file, line
+);
 }
 
 
 inline Log::Logger::~Logger() {
-    if (m_fout_.is_open()) m_fout_.close();
 }
 
 #endif

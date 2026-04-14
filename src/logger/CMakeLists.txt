@@ -7,3 +7,4 @@ add_executable(log
 	test_1.cpp
         Logger.h
 )
+target_link_libraries(log PRIVATE stdc++exp)

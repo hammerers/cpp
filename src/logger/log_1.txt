@@ -1,0 +1,7 @@
+[
+time: 2026-03-15 22:30:10.325308300
+level: INFO
+file: E:\tool\test\git\cpp\src\logger\test_1.cpp
+line: 6
+MSG: s
+]
